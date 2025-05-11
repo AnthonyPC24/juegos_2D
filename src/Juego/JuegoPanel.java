@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
-
+    // Comentar para no olvidarme
     private Personaje personaje;
     private int x = 100, y = 500;
     private int velocidadY = 0;

@@ -3,8 +3,7 @@ package Juego;
 import java.awt.*;
 
 public class Plataforma {
-
-    int x, y, width, height;
+    public int x, y, width, height;
 
     public Plataforma(int x, int y, int width, int height) {
         this.x = x;
@@ -16,5 +15,4 @@ public class Plataforma {
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
     }
-
 }

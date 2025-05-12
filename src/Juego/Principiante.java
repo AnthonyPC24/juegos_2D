@@ -6,6 +6,6 @@ public class Principiante extends Personaje{
         super(nombre);
         this.tipo = "Principiante";
         this.bonusPuntos = 10;
-        this.salto = 18;
+        this.salto = 15;
     }
 }

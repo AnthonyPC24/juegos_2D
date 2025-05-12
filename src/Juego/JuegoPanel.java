@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
+    private static final int PERSONAJE_ANCHO = 80;
+    private static final int PERSONAJE_ALTO = 80;
+
     // Comentar para no olvidarme
     private Personaje personaje;
     private int x = 100, y = 500;
@@ -19,6 +22,34 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
     private int bonusAcumulado = 0;
     private boolean partidaFinalizada = false;
     private long tiempoInicio;
+    private Image imagenMoneda;
+    private Image imagenEstrella;
+    private Image imagenPersonaje;
+    int estrellaX = 450;
+    int estrellaY = 100;
+    int estrellaAncho = 60;
+    int estrellaAlto = 60;
+
+
+    private void generarPlataformasAleatorias(int cantidad) {
+        plataformas.clear();
+
+        plataformas.add(new Plataforma(0, 560, 800, 40)); // Suelo
+        plataformas.add(new Plataforma(460, 180, 60, 20));
+
+        Random random = new Random();
+        int y = 440;
+
+        for (int i = 0; i < cantidad; i++) {
+            int x = random.nextInt(650);
+            int width = 60;  // ↓ Antes 100, ahora más estrechas
+            int height = 20; // ↓ También las hacemos más finas visualmente
+
+            plataformas.add(new Plataforma(x, y, width, height));
+            y -= 60 + random.nextInt(20);  // ↓ Menos distancia entre plataformas
+        }
+    }
+
 
     public JuegoPanel(Personaje personaje) {
         this.personaje = personaje;
@@ -26,17 +57,29 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         addKeyListener(this);
 
+        //Ruta imagen de monedas
+        this.imagenMoneda = new ImageIcon(getClass().getResource("/imagen/moneda.gif")).getImage();
+        if (imagenMoneda == null) {
+            System.out.println("Imagen de moneda no encontrada");
+        }
+        // ruta imagen
+        this.imagenEstrella = new ImageIcon(getClass().getResource("/imagen/estrella.gif")).getImage();
+        if (imagenEstrella == null) {
+            System.out.println("Imagen de estrella no encontrada");
+        }
+
+        // Usa solo una imagen para el personaje
+        this.imagenPersonaje = new ImageIcon(getClass().getResource("/imagen/personaje.gif")).getImage();
+
+
+
         tiempoInicio = System.currentTimeMillis();
 
         plataformas = new ArrayList<>();
-        plataformas.add(new Plataforma(100, 540, 100, 10)); // suelo
-        plataformas.add(new Plataforma(200, 450, 100, 10));
-        plataformas.add(new Plataforma(300, 350, 100, 10));
-        plataformas.add(new Plataforma(400, 250, 100, 10));
-        plataformas.add(new Plataforma(500, 150, 100, 10));
+        generarPlataformasAleatorias(5);
 
         monedas = new ArrayList<>();
-        generarMonedasAleatorias(5);
+        generarMonedasAleatorias(6);
 
         timer = new Timer(20, this);
         timer.start();
@@ -46,11 +89,19 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private void generarMonedasAleatorias(int cantidad) {
+        monedas.clear();
         Random random = new Random();
+
         for (int i = 0; i < cantidad; i++) {
-            int x = random.nextInt(700);
-            int y = 100 + random.nextInt(400);
-            monedas.add(new Moneda(x, y));
+            // Elegimos una plataforma aleatoria que no sea el suelo (índice 0)
+            int index = 1 + random.nextInt(plataformas.size() - 1);
+            Plataforma p = plataformas.get(index);
+
+            // Centrar la moneda encima de la plataforma
+            int monedaX = p.x + (p.width - Moneda.ANCHO) / 2;
+            int monedaY = p.y - Moneda.ALTO; // Justo encima
+
+            monedas.add(new Moneda(monedaX, monedaY));
         }
     }
 
@@ -59,24 +110,22 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
 
         // Personaje
-        g.setColor(Color.red);
-        g.fillOval(x, y, 40, 40);
+        g.drawImage(imagenPersonaje, x, y, PERSONAJE_ANCHO, PERSONAJE_ALTO, this);
 
         // Plataformas
-        g.setColor(Color.green);
+        g.setColor(Color.BLUE);
         for (Plataforma p : plataformas) {
             g.fillRect(p.x, p.y, p.width, p.height);
         }
 
         // Monedas
-        g.setColor(Color.yellow);
         for (Moneda m : monedas) {
-            g.fillOval(m.getX(), m.getY(), 20, 20);
+            g.drawImage(imagenMoneda, m.getX(), m.getY(), 50, 50, this);
         }
 
         // Estrella (objetivo final)
-        g.setColor(Color.orange);
-        g.fillOval(450, 100, 30, 30);
+
+        g.drawImage(imagenEstrella, estrellaX, estrellaY, estrellaAncho, estrellaAlto, this);
 
         // Puntos
         g.setColor(Color.black);
@@ -101,18 +150,17 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         y += velocidadY;
 
         for (Plataforma p : plataformas) {
-            Rectangle rPersonaje = new Rectangle(x, y, 40, 40);
+            Rectangle rPersonaje = new Rectangle(x, y, PERSONAJE_ALTO, PERSONAJE_ANCHO); //
             if (rPersonaje.intersects(p.getBounds()) && velocidadY > 0) {
-                y = p.y - 40;
+                y = p.y - PERSONAJE_ALTO; // lo colocamos justo encima de la plataforma
                 velocidadY = 0;
                 break;
             }
         }
-
         // Colisión con monedas
         for (int i = 0; i < monedas.size(); i++) {
             Moneda m = monedas.get(i);
-            Rectangle rPersonaje = new Rectangle(x, y, 40, 40);
+            Rectangle rPersonaje = new Rectangle(x + 20, y + 50, 40, 30);
             if (rPersonaje.intersects(m.getBounds())) {
                 int bonus = 0;
 
@@ -132,8 +180,8 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         }
 
         // Colisión con la estrella
-        Rectangle personajeRect = new Rectangle(x, y, 40, 40);
-        Rectangle estrellaRect = new Rectangle(500, 100, 30, 30);
+        Rectangle personajeRect = new Rectangle(x, y, PERSONAJE_ALTO, PERSONAJE_ANCHO);
+        Rectangle estrellaRect = new Rectangle(estrellaX, estrellaY, estrellaAncho, estrellaAlto);
         if (personajeRect.intersects(estrellaRect)) {
             finalizarPartida("estrella");
         }
@@ -160,7 +208,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         int puntosPorEstrella = motivo.equals("estrella") ? 50 : 0;  // 50 puntos por estrella
 
         // Calcular los puntos totales
-        int total = puntos + puntosPorEstrella;  // No necesitas bonusAcumulado porque ya lo sumas en el cálculo de las monedas
+        int total = puntos + puntosPorEstrella;
 
         // Guardar el puntaje en la base de datos
         int idPersonaje = personaje.getId();  // Obtener el id del personaje
@@ -183,7 +231,6 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
 
 
-    // Método para reiniciar el juego
     private void reiniciarJuego() {
         // Reiniciar las variables y objetos necesarios para volver a empezar
         x = 100;
@@ -193,15 +240,20 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         monedasRecolectadas = 0;
         bonusAcumulado = 0;
         tiempoInicio = System.currentTimeMillis();
-        // Asegúrate de agregar plataformas y monedas nuevamente
-        plataformas.clear();
+
+        // Reiniciar plataformas
+        generarPlataformasAleatorias(5);
+
+        // Reiniciar monedas
         monedas.clear();
-        generarMonedasAleatorias(5);  // Genera las monedas nuevamente
+        generarMonedasAleatorias(5);
+
         partidaFinalizada = false;  // Volver a permitir que el jugador juegue
-        timer.start();  // Reiniciar el temporizador
-        cronometro.start();  // Reiniciar el cronómetro
-        repaint();  // Volver a pintar el panel para actualizar la interfaz
+        timer.start();              // Reiniciar el temporizador
+        cronometro.start();         // Reiniciar el cronómetro
+        repaint();                  // Volver a pintar el panel para actualizar la interfaz
     }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -209,8 +261,8 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
         int salto = personaje.getSalto();
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT -> x -= 15;
-            case KeyEvent.VK_RIGHT -> x += 15;
+            case KeyEvent.VK_LEFT -> x -= 20;
+            case KeyEvent.VK_RIGHT -> x += 20;
             case KeyEvent.VK_UP -> {
                 if (velocidadY == 0) {
                     velocidadY = -salto;
@@ -218,6 +270,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
             }
         }
     }
+
 
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}

@@ -1,6 +1,7 @@
 package Juego;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class VentanaJuego extends JFrame {
 
@@ -15,5 +16,9 @@ public class VentanaJuego extends JFrame {
 
         setVisible(true);
         panel.requestFocusInWindow();
+
+        Toolkit pantalla = Toolkit.getDefaultToolkit();
+        Image icon = pantalla.getImage("src/imagen/politecnics.png");
+        setIconImage(icon);
     }
 }

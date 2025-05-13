@@ -18,7 +18,6 @@ public class GestorBD {
         }
     }
 
-    // Guardar puntajes
     // Guardar puntajes con referencia a id_personaje
     public static void guardarPuntaje(int idPersonaje, int puntosPorMonedas, int bonusAdicional, int puntosPorEstrella, int total) {
         String sql = "INSERT INTO puntajes (id_personaje, por_moneda, bonus_adicional, estrella, total) VALUES (?, ?, ?, ?, ?)";

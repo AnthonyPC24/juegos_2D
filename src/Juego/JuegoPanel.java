@@ -4,31 +4,73 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
     private static final int PERSONAJE_ANCHO = 80;
     private static final int PERSONAJE_ALTO = 80;
+    private final Timer timer;
+    private final Timer cronometro;
+    private final Personaje personaje;
+
+    private final Image imagenMoneda;
+    private final Image imagenEstrella;
+    private final Image imagenPersonaje;
+
+    private final ArrayList<Plataforma> plataformas;
+    private final ArrayList<Moneda> monedas;
 
     // Comentar para no olvidarme
-    private Personaje personaje;
-    private int x = 100, y = 500;
+    private int x = 100, y = 500; // Posición del personaje
     private int velocidadY = 0;
-    private Timer timer, cronometro;
-    private ArrayList<Plataforma> plataformas;
-    private ArrayList<Moneda> monedas;
     private int puntos = 0;
     private int monedasRecolectadas = 0;
     private int bonusAcumulado = 0;
     private boolean partidaFinalizada = false;
     private long tiempoInicio;
-    private Image imagenMoneda;
-    private Image imagenEstrella;
-    private Image imagenPersonaje;
     int estrellaX = 450;
     int estrellaY = 100;
     int estrellaAncho = 60;
     int estrellaAlto = 60;
+
+
+
+    public JuegoPanel(Personaje personaje) {
+        this.personaje = personaje;
+        setBackground(new Color(217, 217, 214));
+        setFocusable(true);
+        addKeyListener(this);
+
+        //Ruta imagen de monedas
+        this.imagenMoneda = new ImageIcon(Objects.requireNonNull(getClass().getResource("/imagen/moneda.gif"))).getImage();
+        if (imagenMoneda == null) {
+            System.out.println("Imagen de moneda no encontrada");
+        }
+        // ruta imagen estrella
+        this.imagenEstrella = new ImageIcon(Objects.requireNonNull(getClass().getResource("/imagen/estrella.gif"))).getImage();
+        if (imagenEstrella == null) {
+            System.out.println("Imagen de estrella no encontrada");
+        }
+
+        // Usa solo una imagen para el personaje
+        this.imagenPersonaje = new ImageIcon(Objects.requireNonNull(getClass().getResource("/imagen/personaje.gif"))).getImage();
+
+        tiempoInicio = System.currentTimeMillis();
+
+        plataformas = new ArrayList<>();
+        generarPlataformasAleatorias(6);
+
+        monedas = new ArrayList<>();
+        generarMonedasAleatorias();
+
+        timer = new Timer(20, this);
+        timer.start();
+
+        cronometro = new Timer(1000, e -> verificarTiempo());
+        cronometro.start();
+
+    }
 
 
     private void generarPlataformasAleatorias(int cantidad) {
@@ -42,57 +84,19 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
         for (int i = 0; i < cantidad; i++) {
             int x = random.nextInt(650);
-            int width = 60;  // ↓ Antes 100, ahora más estrechas
-            int height = 20; // ↓ También las hacemos más finas visualmente
+            int width = 60;
+            int height = 20;
 
             plataformas.add(new Plataforma(x, y, width, height));
-            y -= 60 + random.nextInt(20);  // ↓ Menos distancia entre plataformas
+            y -= 60 + random.nextInt(20);
         }
     }
 
-
-    public JuegoPanel(Personaje personaje) {
-        this.personaje = personaje;
-        setBackground(Color.CYAN);
-        setFocusable(true);
-        addKeyListener(this);
-
-        //Ruta imagen de monedas
-        this.imagenMoneda = new ImageIcon(getClass().getResource("/imagen/moneda.gif")).getImage();
-        if (imagenMoneda == null) {
-            System.out.println("Imagen de moneda no encontrada");
-        }
-        // ruta imagen
-        this.imagenEstrella = new ImageIcon(getClass().getResource("/imagen/estrella.gif")).getImage();
-        if (imagenEstrella == null) {
-            System.out.println("Imagen de estrella no encontrada");
-        }
-
-        // Usa solo una imagen para el personaje
-        this.imagenPersonaje = new ImageIcon(getClass().getResource("/imagen/personaje.gif")).getImage();
-
-
-
-        tiempoInicio = System.currentTimeMillis();
-
-        plataformas = new ArrayList<>();
-        generarPlataformasAleatorias(5);
-
-        monedas = new ArrayList<>();
-        generarMonedasAleatorias(6);
-
-        timer = new Timer(20, this);
-        timer.start();
-
-        cronometro = new Timer(1000, e -> verificarTiempo());
-        cronometro.start();
-    }
-
-    private void generarMonedasAleatorias(int cantidad) {
+    private void generarMonedasAleatorias() {
         monedas.clear();
         Random random = new Random();
 
-        for (int i = 0; i < cantidad; i++) {
+        for (int i = 0; i < 5; i++) {
             // Elegimos una plataforma aleatoria que no sea el suelo (índice 0)
             int index = 1 + random.nextInt(plataformas.size() - 1);
             Plataforma p = plataformas.get(index);
@@ -113,7 +117,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         g.drawImage(imagenPersonaje, x, y, PERSONAJE_ANCHO, PERSONAJE_ALTO, this);
 
         // Plataformas
-        g.setColor(Color.BLUE);
+        g.setColor(new Color(154, 221, 225));
         for (Plataforma p : plataformas) {
             g.fillRect(p.x, p.y, p.width, p.height);
         }
@@ -124,16 +128,17 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         }
 
         // Estrella (objetivo final)
-
         g.drawImage(imagenEstrella, estrellaX, estrellaY, estrellaAncho, estrellaAlto, this);
 
+        //Fuentes de la letra y tamaño
+        g.setFont(new Font("Poppins", Font.BOLD, 15));
+        g.setColor(new Color(0, 163, 224));
+
         // Puntos
-        g.setColor(Color.black);
         g.drawString("Puntos: " + puntos, 20, 20);
 
         // Mostrar el cronómetro
         long tiempoTranscurrido = (System.currentTimeMillis() - tiempoInicio) / 1000;
-        g.setColor(Color.BLACK);
         g.drawString("Tiempo: " + tiempoTranscurrido + "s", 20, 40);
 
         // Mostrar los puntos totales
@@ -191,10 +196,10 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
     private void verificarTiempo() {
         long tiempoTranscurrido = (System.currentTimeMillis() - tiempoInicio) / 1000;
-        System.out.println("Tiempo transcurrido: " + tiempoTranscurrido);
-        if (tiempoTranscurrido >= 60 && !partidaFinalizada) {
+        if (tiempoTranscurrido >= 30 && !partidaFinalizada) {
             finalizarPartida("tiempo");
         }
+        repaint();  // Actualizar el tiempo en pantalla
     }
 
 
@@ -205,7 +210,11 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
         // Calcular los puntos
         int puntosPorMonedas = monedasRecolectadas * 5;  // 5 puntos por moneda
-        int puntosPorEstrella = motivo.equals("estrella") ? 50 : 0;  // 50 puntos por estrella
+        int puntosPorEstrella = 0;
+
+        if (motivo.equals("estrella")) {
+            puntosPorEstrella = 50;
+        } // 50 puntos por estrella
 
         // Calcular los puntos totales
         int total = puntos + puntosPorEstrella;
@@ -228,9 +237,6 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-
-
-
     private void reiniciarJuego() {
         // Reiniciar las variables y objetos necesarios para volver a empezar
         x = 100;
@@ -246,7 +252,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
         // Reiniciar monedas
         monedas.clear();
-        generarMonedasAleatorias(5);
+        generarMonedasAleatorias();
 
         partidaFinalizada = false;  // Volver a permitir que el jugador juegue
         timer.start();              // Reiniciar el temporizador

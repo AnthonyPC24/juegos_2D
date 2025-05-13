@@ -6,7 +6,8 @@ public class Moneda {
     public static final int ANCHO = 40;
     public static final int ALTO = 60;
 
-    private int x, y;
+    private final int x;
+    private final int y;
 
     public Moneda(int x, int y) {
         this.x = x;

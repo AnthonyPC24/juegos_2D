@@ -118,6 +118,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
             int monedaX = p.posPlatfornX + (p.width - Moneda.ANCHO) / 2;
             int monedaY = p.posPlatformY - Moneda.ALTO; // Justo encima
 
+            //Agredo monedas a la clase Moneda
             monedas.add(new Moneda(monedaX, monedaY));
         }
     }

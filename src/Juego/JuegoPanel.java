@@ -12,6 +12,8 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
     // Comentar para no olvidarme
     // comentario prueba github
+    // nuevo comentario para subir en la rama
+    //comentarios de la Rama 1 para subir al git repositorio
     private Personaje personaje;
     private int x = 100, y = 500;
     private int velocidadY = 0;

@@ -11,6 +11,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
     private static final int PERSONAJE_ALTO = 80;
 
     // Comentar para no olvidarme
+    // comentario prueba github
     private Personaje personaje;
     private int x = 100, y = 500;
     private int velocidadY = 0;
@@ -31,22 +32,22 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
     int estrellaAlto = 60;
 
 
-    private void generarPlataformasAleatorias(int cantidad) {
+    private void generarPlataformasAleatorias() {
         plataformas.clear();
 
         plataformas.add(new Plataforma(0, 560, 800, 40)); // Suelo
-        plataformas.add(new Plataforma(460, 180, 60, 20));
+        plataformas.add(new Plataforma(460, 180, 60, 20)); // plataforma de la estrella
 
         Random random = new Random();
         int y = 440;
 
-        for (int i = 0; i < cantidad; i++) {
+        for (int i = 0; i < 5; i++) {
             int x = random.nextInt(650);
-            int width = 60;  // ↓ Antes 100, ahora más estrechas
-            int height = 20; // ↓ También las hacemos más finas visualmente
+            int width = 60;
+            int height = 20;
 
             plataformas.add(new Plataforma(x, y, width, height));
-            y -= 60 + random.nextInt(20);  // ↓ Menos distancia entre plataformas
+            y -= 60 + random.nextInt(20);  //
         }
     }
 
@@ -76,7 +77,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         tiempoInicio = System.currentTimeMillis();
 
         plataformas = new ArrayList<>();
-        generarPlataformasAleatorias(5);
+        generarPlataformasAleatorias();
 
         monedas = new ArrayList<>();
         generarMonedasAleatorias(6);
@@ -84,7 +85,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         timer = new Timer(20, this);
         timer.start();
 
-        cronometro = new Timer(1000, e -> verificarTiempo());
+        cronometro = new Timer(500, e -> verificarTiempo());
         cronometro.start();
     }
 
@@ -212,7 +213,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
         // Guardar el puntaje en la base de datos
         int idPersonaje = personaje.getId();  // Obtener el id del personaje
-        GestorBD.guardarPuntaje(idPersonaje, puntosPorMonedas, bonusAcumulado, puntosPorEstrella, total);
+       GestorBD.guardarPuntaje(idPersonaje, puntosPorMonedas, bonusAcumulado, puntosPorEstrella, total);
 
         // Mostrar el mensaje final
         JOptionPane.showMessageDialog(this, "¡Partida finalizada por " + motivo + "! Puntos Totales: " + total);
@@ -242,7 +243,7 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
         tiempoInicio = System.currentTimeMillis();
 
         // Reiniciar plataformas
-        generarPlataformasAleatorias(5);
+        generarPlataformasAleatorias();
 
         // Reiniciar monedas
         monedas.clear();
@@ -257,7 +258,9 @@ public class JuegoPanel extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (partidaFinalizada) return;
+        if (partidaFinalizada) {
+            return;
+        }
 
         int salto = personaje.getSalto();
         switch (e.getKeyCode()) {

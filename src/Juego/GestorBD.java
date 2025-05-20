@@ -3,9 +3,9 @@ package Juego;
 import java.sql.*;
 
 public class GestorBD {
-    private static final String db_url = "jdbc:mysql://localhost:3306/juego_2d";
-    private static final String db_user = "root";
-    private static final String db_pass = "mysql";
+  private static final String db_url = "jdbc:mysql://localhost:3306/juego_2d";
+  private static final String db_user = "root";
+   private static final String db_pass = "mysql";
 
     public static Connection conectar() {
         try {
@@ -18,7 +18,7 @@ public class GestorBD {
         }
     }
 
-    // Guardar puntajes
+    //Guardar puntajes
     // Guardar puntajes con referencia a id_personaje
     public static void guardarPuntaje(int idPersonaje, int puntosPorMonedas, int bonusAdicional, int puntosPorEstrella, int total) {
         String sql = "INSERT INTO puntajes (id_personaje, por_moneda, bonus_adicional, estrella, total) VALUES (?, ?, ?, ?, ?)";
@@ -32,6 +32,7 @@ public class GestorBD {
             ps.setInt(5, total);
 
             ps.executeUpdate();
+
         } catch (SQLException e) {
             System.out.println("Error al guardar el puntaje: " + e.getMessage());
         }

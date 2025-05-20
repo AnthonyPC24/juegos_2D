@@ -20,6 +20,7 @@ public class VentanaInicio extends JFrame {
         JLabel nombreLabel = new JLabel("Introduce tu nombre: ");
         nombreTextField = new JTextField(20);
 
+        //Selector de tipo de personaje
         JLabel tipoLabel = new JLabel("Selecciona tu tipo: ");
         tipoComboBox = new JComboBox<>(new String[]{"Principiante", "Escalador"});
 
@@ -42,6 +43,7 @@ public class VentanaInicio extends JFrame {
                 } else {
                     Personaje personaje;
 
+
                     if (tipo.equals("Principiante")) {
                         personaje = new Principiante(nombre);
                     } else {
@@ -52,10 +54,11 @@ public class VentanaInicio extends JFrame {
                     personaje = GestorBD.insertarPersonaje(personaje);
 
                     if (personaje.getId() != -1) { // Verificar que se haya insertado correctamente
+                        //mensaje
                         JOptionPane.showMessageDialog(null, "¡Juego Iniciado! Personaje: " + personaje.getNombre() + " Tipo: " + personaje.getTipo());
                         dispose(); // Cerrar la ventana de inicio
 
-                        // Abrir la ventana del juego con el personaje
+                        // Abrir la ventana del juego con el personaje elegido
                         new VentanaJuego(personaje);
                     } else {
                         JOptionPane.showMessageDialog(null, "Error al crear el personaje en la base de datos.");

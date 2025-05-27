@@ -18,6 +18,7 @@ public class GestorBD {
         }
     }
 
+<<<<<<< HEAD
     //Guardar puntajes
     // Guardar puntajes con referencia a id_personaje
     public static void guardarPuntaje(int idPersonaje, int puntosPorMonedas, int bonusAdicional, int puntosPorEstrella, int total) {
@@ -39,6 +40,8 @@ public class GestorBD {
     }
 
 
+=======
+>>>>>>> 319d271aae111e4816049bec49fb8e9bdb0289d1
     // Insertar personaje
     public static Personaje insertarPersonaje(Personaje personaje) {
         String sql = "SELECT tipo_id FROM tipos_personaje WHERE categoria = ?";
@@ -73,6 +76,24 @@ public class GestorBD {
         }
 
         return personaje;
+    }
+
+    // Guardar puntajes con referencia a id_personaje
+    public static void guardarPuntaje(int idPersonaje, int puntosPorMonedas, int bonusAdicional, int puntosPorEstrella, int total) {
+        String sql = "INSERT INTO puntajes (id_personaje, por_moneda, bonus_adicional, estrella, total) VALUES (?, ?, ?, ?, ?)";
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idPersonaje);  // Asignamos el id_personaje
+            ps.setInt(2, puntosPorMonedas);
+            ps.setInt(3, bonusAdicional);
+            ps.setInt(4, puntosPorEstrella);
+            ps.setInt(5, total);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al guardar el puntaje: " + e.getMessage());
+        }
     }
 }
 
